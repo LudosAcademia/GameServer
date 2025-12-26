@@ -10,6 +10,6 @@ class TestClass:
         "phone","car"
     ]]
 
-
-
-print(str(TestClass.a)  + " " + str(TestClass.b)  + " " + str(TestClass.c) )
+#print(str(TestClass.a)  + " " + str(TestClass.b)  + " " + str(TestClass.c) )
+import config
+print(config.Config.SECRET_KEY)

@@ -1,11 +1,11 @@
 class PlaygroundData:
     def __init__(self):
+        self.delete = False
         self.id = 0
         self.plygrd_name = ""
         self.plygrd_desc = ""
         self.tiles = []
         self.plygrd_size = 25
-
 
 
 class Tile:

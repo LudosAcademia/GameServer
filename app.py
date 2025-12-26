@@ -1,7 +1,7 @@
-from flask import Flask, request, jsonify, abort, config
+from flask import Flask, request, jsonify, abort
 import jwt
 import data
-import main
+from config import Config
 
 app = Flask(__name__)
 
@@ -12,33 +12,42 @@ def main_route():
 
 @app.route("/gate_data", methods=["POST"])    
 def recieve_data():
+    print("REQUEST RECEIVED")
     if request.method == 'POST':
         header = request.headers.get("Authorization")
         if not header:
             abort(401, "Missing Authorization header")    
         #split the header into 2 elements put into an array and get the index 1 of that array
         encoded_jwt = header.split(" ",1)[1]
-        if verify_jwt(encoded_jwt):
-            payload = request.get_json()
-            key = config.Config.SECRET_KEY
-            decoded_jwt = jwt.decode(encoded_jwt, key, algorithms="HS256")
-            user_data = data.UserData()
-            user_data.user_id = decoded_jwt["sub"]
-            user_data.playgrounds = payload["playgrounds"]
-            print(user_data.user_id)
-            print(user_data.playgrounds)
-
-        else:
+        print(encoded_jwt)
+        try:
+            valid = verify_jwt(encoded_jwt)
+            print("JWT verification result:", valid)
+        except Exception as e:
+            print("JWT verification crashed:", type(e), e)
+            return {"error": str(e)}, 401
+        if not valid:
             abort(401, "Authorization Failed")
 
-        return 'JSON data received successfully!', 200
+        payload = request.get_json()
+        key = Config.SECRET_KEY
+
+        decoded_jwt = jwt.decode(encoded_jwt, key, algorithms="HS256")
+
+        user_data = data.UserData()
+        user_data.user_id = decoded_jwt["sub"]
+        user_data.playgrounds = payload.get("playgrounds")
+        print(user_data.user_id)
+        print(user_data.playgrounds)   
+        return jsonify(payload), 200
     else:
         return 'Method Not Allowed', 405
+    
 
 
 def verify_jwt(encoded_jwt):
     try:
-        key = config.Config.SECRET_KEY
+        key = Config.SECRET_KEY
         decoded_jwt = jwt.decode(encoded_jwt, key, algorithms="HS256")
         json = jsonify(decoded_jwt)
         return True
@@ -46,8 +55,6 @@ def verify_jwt(encoded_jwt):
         print("Signature is invalid")
         return False
     
-
-
 
 
 if __name__ == "__main__":

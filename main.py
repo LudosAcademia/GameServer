@@ -1,5 +1,5 @@
 import database
-
+from config import Config
 class Main:
 
     def send_tiles_mysql(id,data,len):
