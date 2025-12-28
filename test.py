@@ -1,3 +1,9 @@
+from database import MysqlConnect
+from main import Main
+import data
+import config
+
+
 
 class TestClass:
     a = 23
@@ -11,5 +17,33 @@ class TestClass:
     ]]
 
 #print(str(TestClass.a)  + " " + str(TestClass.b)  + " " + str(TestClass.c) )
-import config
-print(config.Config.SECRET_KEY)
+#print(config.Config.SECRET_KEY)
+
+#print_playgrounds(retrive_plygrd_data(13))
+
+#Main.print_playgrounds(Main.retrive_plygrd_data(1))
+
+
+#print(playgrounds[0][3])
+
+user = data.UserData()
+raw_user = MysqlConnect.SelectUser(13)
+user.name = raw_user[1]
+print(user.name)
+
+
+
+
+"""
+
+
+
+for plygrd in user.playgrounds:
+    print()
+
+for item in playgrounds:
+    for i in item:
+        print(i)
+
+
+"""

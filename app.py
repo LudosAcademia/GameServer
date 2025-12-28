@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify, abort
 import jwt
 import data
 from config import Config
+from database import MysqlConnect
+from main import Main
 
 app = Flask(__name__)
 
@@ -10,8 +12,8 @@ def main_route():
     return "<p>None</p>"
 
 
-@app.route("/gate_data", methods=["POST"])    
-def recieve_data():
+@app.route("/send_data", methods=["POST"])    
+def handle_recieved_data():
     print("REQUEST RECEIVED")
     if request.method == 'POST':
         header = request.headers.get("Authorization")
@@ -33,16 +35,54 @@ def recieve_data():
         key = Config.SECRET_KEY
 
         decoded_jwt = jwt.decode(encoded_jwt, key, algorithms="HS256")
+        print(payload)
+        #print("Playground name: " + str(payload["plygrd_name"]))
+        #print("Playground tiles: " + str(payload["tiles"]))
 
-        user_data = data.UserData()
-        user_data.user_id = decoded_jwt["sub"]
-        user_data.playgrounds = payload.get("playgrounds")
-        print(user_data.user_id)
-        print(user_data.playgrounds)   
+        #for item in user_data.playgrounds:
+        plygrd_id = MysqlConnect.InsertPlayground(payload["plygrd_name"], payload["plygrd_desc"], int(decoded_jwt["sub"]), payload["plygrd_size"], payload["tiles"])
+        payload = {"plygrd_id": plygrd_id}
+        #print(user_data.user_id)
+        #print(user_data.playgrounds)  
+        print(jsonify(payload)) 
         return jsonify(payload), 200
     else:
         return 'Method Not Allowed', 405
     
+
+
+@app.route("/get_data", methods=["POST"])    
+def handle_request_data():
+    if request.method == 'POST':
+        header = request.headers.get("Authorization")
+        if not header:
+            abort(401, "Missing Authorization header")    
+        #split the header into 2 elements put into an array and get the index 1 of that array
+        encoded_jwt = header.split(" ",1)[1]
+        print(encoded_jwt)
+        try:
+            valid = verify_jwt(encoded_jwt)
+            print("JWT verification result:", valid)
+        except Exception as e:
+            print("JWT verification crashed:", type(e), e)
+            return {"error": str(e)}, 401
+        if not valid:
+            abort(401, "Authorization Failed")
+        #payload = request.get_json()
+        key = Config.SECRET_KEY
+        decoded_jwt = jwt.decode(encoded_jwt, key, algorithms="HS256")
+        user_data = data.UserData()
+        id = int(decoded_jwt["sub"])
+        user_data = Main.retrive_plygrd_data(id)
+        #print(payload)
+        return jsonify(user_data.to_dict()), 200
+    else:
+        return 'Method Not Allowed', 405
+    
+
+#problem with unity json to object
+#problem with inserting tiles into mysql in python, inserting playgrounds works
+
 
 
 def verify_jwt(encoded_jwt):
@@ -59,7 +99,6 @@ def verify_jwt(encoded_jwt):
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
-
 
 
 """ Comment Section
