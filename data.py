@@ -1,5 +1,7 @@
 import json
 
+#THIS FILE HOLDS THE CLASSES THAT HOLD TEMPORARY INFO TILL THEY WRITEN ON DATABASE
+
 class PlaygroundData:
     def __init__(self):
         self.delete = False
