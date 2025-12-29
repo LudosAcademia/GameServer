@@ -2,7 +2,7 @@ from database import MysqlConnect
 from main import Main
 import data
 import config
-
+#this file is for testing purposes no real impact on the server
 
 
 class TestClass:

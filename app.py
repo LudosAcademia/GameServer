@@ -7,11 +7,12 @@ from main import Main
 
 app = Flask(__name__)
 
+#main route normally for hosting htmls but for this case it is unused, 
 @app.route("/")
 def main_route():
     return "<p>None</p>"
 
-
+#recieves playground write and delete request from game client and sends back playground id
 @app.route("/send_data", methods=["POST"])    
 def handle_recieved_data():
     print("REQUEST RECEIVED")
@@ -50,7 +51,7 @@ def handle_recieved_data():
         return 'Method Not Allowed', 405
     
 
-
+#recieves JWT from user, authenticates it and sends back user information using user id
 @app.route("/get_data", methods=["POST"])    
 def handle_request_data():
     if request.method == 'POST':
@@ -80,11 +81,7 @@ def handle_request_data():
         return 'Method Not Allowed', 405
     
 
-#problem with unity json to object
-#problem with inserting tiles into mysql in python, inserting playgrounds works
-
-
-
+#encodes and verifies JWT
 def verify_jwt(encoded_jwt):
     try:
         key = Config.SECRET_KEY
@@ -96,7 +93,7 @@ def verify_jwt(encoded_jwt):
         return False
     
 
-
+#for more info please look into how flask functions
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
 
