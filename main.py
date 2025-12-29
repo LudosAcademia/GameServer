@@ -2,8 +2,9 @@ from database import MysqlConnect
 import data
 from config import Config
 
+#it holds the main function of the Server that handles data retrival and write
 class Main:
-
+    #takes in user id returns user object with all the information from database writen
     def retrive_plygrd_data(user_id: int):
         raw_playgrounds = MysqlConnect.SelectPlaygrounds(user_id)
         user = data.UserData()
@@ -29,6 +30,7 @@ class Main:
             user.playgrounds.append(playground)
         return user
 
+    #prints the user object, for testing purposes
     def print_playgrounds(user : data.UserData):    
         for i in user.playgrounds:
             print("playground id: " + str(i.id))
@@ -43,19 +45,20 @@ class Main:
                 print("Tile pos z: " + str(j.tile_pos_z ))
                 print("Tile rot y: " + str(j.tile_rot_y ))
 
+    #depricated
     def send_tiles_mysql(id,data,len):
         MysqlConnect.InsertTiles(id,data,len)
         MysqlConnect.db.close()
         Main.print_tiles(data,len)
-
+    #depricated
     def send_plygrd_mysql(name,desc):
         import data
         MysqlConnect.InsertPlayground(name,desc,data.UserData.user_id)
-
+    #testing purposes
     def print_tiles(tiles, len):
         for j in range(len):
             print("The Index: " + str(tiles.index[j]) + "The Content: " + tiles.content[j])
-
+    #depricated
     def confirm_php_connect(payload_data):    
         import data
         data.UserData.user_id = payload_data
